@@ -1,4 +1,4 @@
-using __Game.Resources.Scripts.EventBus;
+﻿using __Game.Resources.Scripts.EventBus;
 using Assets.__Game.Resources.Scripts.Game.States;
 using Assets.__Game.Resources.Scripts.SOs;
 using Assets.__Game.Scripts.Infrastructure;
@@ -12,11 +12,15 @@ namespace Assets.__Game.Resources.Scripts.Logic
 {
   public class Basket : MonoBehaviour
   {
-    [SerializeField] private CorrectValuesContainerSo _correctValuesContainerSo;
+    [SerializeField] private CorrectValuesContainerSo[] _correctValuesContainersSo;
     [field: Header("Tutorial")]
     [field: SerializeField] public bool Tutorial { get; private set; }
     [Header("Stupor param's")]
     [SerializeField] private float _stuporTimeoutSeconds = 10f;
+
+    public bool Completed { get; private set; }
+    public bool Corrupted { get; private set; }
+    public int CorrectItemsCount => _correctItems.Count;
 
     private List<TreeItem> _correctItems = new List<TreeItem>();
     private List<TreeItem> _incorrectItems = new List<TreeItem>();
@@ -57,8 +61,37 @@ namespace Assets.__Game.Resources.Scripts.Logic
 
     private void ReceiveSpawnedItems(EventStructs.SpawnedItemsEvent spawnedItemsEvent)
     {
-      _correctItems = spawnedItemsEvent.CorrectItems;
-      _incorrectItems = spawnedItemsEvent.IncorrectItems;
+      _correctItems.Clear();
+      _incorrectItems.Clear();
+
+      foreach (var item in spawnedItemsEvent.CorrectItems)
+      {
+        foreach (var container in _correctValuesContainersSo)
+        {
+          if (container.CorrectValues.Contains(item.Answer))
+          {
+            _correctItems.Add(item);
+            break;
+          }
+        }
+      }
+
+      foreach (var item in spawnedItemsEvent.IncorrectItems)
+      {
+        bool isCorrect = false;
+
+        foreach (var container in _correctValuesContainersSo)
+        {
+          if (container.CorrectValues.Contains(item.Answer))
+          {
+            isCorrect = true;
+            break;
+          }
+        }
+
+        if (isCorrect == false)
+          _incorrectItems.Add(item);
+      }
 
       _correctItemsAmount = _correctItems.Count;
       _incorrectItemsAmount = _incorrectItems.Count;
@@ -67,7 +100,7 @@ namespace Assets.__Game.Resources.Scripts.Logic
     public void PlaceItem(TreeItem treeItem)
     {
       if (_canReceiveItems == false) return;
-      if (_gameBootstrapper.StateMachine.CurrentState is not GameplayState) return;
+      if (_gameBootstrapper.StateMachine.CurrentState is GameplayState == false) return;
 
       _placedTreeItem = treeItem;
 
@@ -79,13 +112,25 @@ namespace Assets.__Game.Resources.Scripts.Logic
         _canReceiveItems = true;
       });
 
+      CheckIfItemBelongsToAnotherBasket(treeItem);
     }
 
     private void CheckForCorrectItem()
     {
       ResetAndStartStuporTimer();
 
-      if (_correctValuesContainerSo.CorrectValues.Contains(_placedTreeItem.Answer))
+      bool isCorrect = false;
+
+      foreach (var container in _correctValuesContainersSo)
+      {
+        if (container.CorrectValues.Contains(_placedTreeItem.Answer))
+        {
+          isCorrect = true;
+          break;
+        }
+      }
+
+      if (isCorrect == true)
       {
         _correctCounter++;
         _correctItems.Remove(_placedTreeItem);
@@ -94,7 +139,7 @@ namespace Assets.__Game.Resources.Scripts.Logic
         Destroy(_placedTreeItem.gameObject);
 
         if (_correctCounter >= _correctItemsAmount)
-          _gameBootstrapper.StateMachine.ChangeState(new GameWinState(_gameBootstrapper));
+          Completed = true;
 
         if (Tutorial == false)
           EventBus<EventStructs.LevelPointEvent>.Raise(new EventStructs.LevelPointEvent { LevelPoint = 1 });
@@ -114,7 +159,9 @@ namespace Assets.__Game.Resources.Scripts.Logic
         Destroy(_placedTreeItem.gameObject);
 
         if (_incorrectCounter >= _incorrectItemsAmount)
-          _gameBootstrapper.StateMachine.ChangeState(new GameLoseState(_gameBootstrapper));
+        {
+          Corrupted = true;
+        }
 
         EventBus<EventStructs.BasketPlacedItemEvent>.Raise(new EventStructs.BasketPlacedItemEvent
         {
@@ -123,7 +170,22 @@ namespace Assets.__Game.Resources.Scripts.Logic
         });
       }
 
-      EventBus<EventStructs.BasketReceivedItemEvent>.Raise(new EventStructs.BasketReceivedItemEvent());
+      EventBus<EventStructs.BasketReceivedItemEvent>.Raise(new EventStructs.BasketReceivedItemEvent { Id = transform.GetInstanceID() });
+
+      if (_correctItems.Count == 0 && Completed == false)
+        EventBus<EventStructs.OutOfCorrectItemsEvent>.Raise(new EventStructs.OutOfCorrectItemsEvent { Id = transform.GetInstanceID() });
+    }
+
+    private void CheckIfItemBelongsToAnotherBasket(TreeItem treeItem)
+    {
+      foreach (var container in _correctValuesContainersSo)
+      {
+        if (container.CorrectValues.Contains(treeItem.Answer) == false)
+        {
+          EventBus<EventStructs.WrongBasketEvent>.Raise(new EventStructs.WrongBasketEvent { Id = transform.GetInstanceID(), TreeItem = treeItem });
+          break;
+        }
+      }
     }
 
     private void StuporTimerDependsOnState(EventStructs.StateChanged stateChanged)

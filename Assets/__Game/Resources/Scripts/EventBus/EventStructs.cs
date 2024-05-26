@@ -44,7 +44,21 @@ namespace __Game.Resources.Scripts.EventBus
     #endregion
 
     #region Basket
-    public struct BasketReceivedItemEvent : IEvent { }
+    public struct BasketReceivedItemEvent : IEvent
+    {
+      public int Id;
+    }
+
+    public struct OutOfCorrectItemsEvent : IEvent
+    {
+      public int Id;
+    }
+
+    public struct WrongBasketEvent : IEvent
+    {
+      public int Id;
+      public TreeItem TreeItem;
+    }
     #endregion
 
     #region Variants&Answers

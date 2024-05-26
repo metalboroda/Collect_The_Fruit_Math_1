@@ -220,7 +220,7 @@ namespace Assets.__Game.Resources.Scripts.Management
 
     private void SetOverallScore(EventStructs.SpawnedItemsEvent spawnedItemsEvent)
     {
-      _overallScore = spawnedItemsEvent.CorrectItems.Count;
+      _overallScore += spawnedItemsEvent.CorrectItems.Count;
       _gameScoreCounterTxt.text = $"{_currentScore} / {_overallScore}";
 
       _gameLoseCounterTxt.text = _currentLoses.ToString();
@@ -316,7 +316,7 @@ namespace Assets.__Game.Resources.Scripts.Management
           SwitchCanvas(_loseCanvas);
 
           if (_lastLevel == true)
-            _winNextLevelBtn.gameObject.SetActive(false);
+            _loseNextLevelBtn.gameObject.SetActive(false);
           break;
         case GamePauseState:
           _globalCanvas.SetActive(true);

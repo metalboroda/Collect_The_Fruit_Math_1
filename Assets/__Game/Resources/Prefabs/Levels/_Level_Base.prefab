@@ -983,23 +983,23 @@ PrefabInstance:
     - target: {fileID: 3067694640524422247, guid: 54db0be243cd17b44bfb4e7183e1af9b, type: 3}
       propertyPath: _treeItemsDatas.Array.data[0].<NarrationCLip>k__BackingField
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8300000, guid: eb0931f0a18609a43a724550466c4829, type: 3}
     - target: {fileID: 3067694640524422247, guid: 54db0be243cd17b44bfb4e7183e1af9b, type: 3}
       propertyPath: _treeItemsDatas.Array.data[1].<NarrationCLip>k__BackingField
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8300000, guid: 5697a57a46c6bdb43b577fae663c7310, type: 3}
     - target: {fileID: 3067694640524422247, guid: 54db0be243cd17b44bfb4e7183e1af9b, type: 3}
       propertyPath: _treeItemsDatas.Array.data[2].<NarrationCLip>k__BackingField
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8300000, guid: 8a4face7349cc0b4299290cde6fa8b6b, type: 3}
     - target: {fileID: 3067694640524422247, guid: 54db0be243cd17b44bfb4e7183e1af9b, type: 3}
       propertyPath: _treeItemsDatas.Array.data[3].<NarrationCLip>k__BackingField
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8300000, guid: f33d0a6cc5570264095892d8029efca4, type: 3}
     - target: {fileID: 3067694640524422247, guid: 54db0be243cd17b44bfb4e7183e1af9b, type: 3}
       propertyPath: _treeItemsDatas.Array.data[4].<NarrationCLip>k__BackingField
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8300000, guid: a8eb80f5936092046bc023e8c882a9ec, type: 3}
     - target: {fileID: 3067694640524422247, guid: 54db0be243cd17b44bfb4e7183e1af9b, type: 3}
       propertyPath: _treeItemsDatas.Array.data[5].<NarrationCLip>k__BackingField
       value: 
